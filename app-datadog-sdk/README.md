@@ -1,22 +1,14 @@
-# App B — Datadog SDK (zero decoration)
+# App B — Datadog SDK (zero decorators)
 
 The **same** Strands agent as App A, observed with Datadog's **LLM Observability
-SDK** (`ddtrace`), running **agentless**, with **no manual decorators**.
-
-Datadog [officially supports Strands Agents](https://docs.datadoghq.com/llm_observability/instrumentation/auto_instrumentation/)
-(`strands-agents >= 1.11.0`, ddtrace version: *Any*). Support is **not** a
-`ddtrace/contrib` patch — Strands emits OpenTelemetry GenAI spans natively, and
-the SDK ingests them via ddtrace's **OpenTelemetry bridge**:
+SDK** (`ddtrace`), running **agentless**, with **no observability decorators**
+(only Strands' functional `@tool`, same as App A).
 
 ```
 agent.py
-  └── DD_TRACE_OTEL_ENABLED=1      # ddtrace becomes the OTel tracer provider
-  └── LLMObs.enable(agentless)     # ship to Datadog LLM Obs, no Agent
-  └── Strands emits native gen_ai.* spans ──► ddtrace ──► Datadog LLM Obs
+  └── LLMObs.enable(agentless)     # ship to Datadog Agent Observability, no Agent
+  └── ddtrace auto-instruments the Amazon Bedrock calls ──► Agent Observability
 ```
-
-No `@workflow` / `@tool` annotations anywhere — the full agent trace (agent
-invocation, event-loop cycles, LLM calls, tool calls) is captured automatically.
 
 ## Run
 
@@ -30,30 +22,34 @@ cp .env.example .env        # then paste your DD_API_KEY
 python agent.py "What's the weather in Tokyo, and is it a good day to run?"
 ```
 
-Then open [Datadog LLM Observability](https://app.datadoghq.com/llm/traces) and
+Then open [Datadog Agent Observability](https://app.datadoghq.com/llm/traces) and
 search `ml_app:bedrock-agentcore-sdk` (allow 3–5 minutes).
 
-## The bridge is what matters
+## What you get (and what you don't)
 
-| `DD_TRACE_OTEL_ENABLED` | What the SDK captures (zero decoration) |
-|-------------------------|-----------------------------------------|
-| `0` (off) | Only the auto-instrumented **Bedrock** calls (the `llm` spans). Strands' agent/tool/event-loop spans are missing. |
-| `1` (on, default here) | ddtrace ingests Strands' **native OTel** spans → full trace: `agent` + `execute_event_loop_cycle` + `llm` + `tool`. |
+With zero decorators, the Datadog SDK captures what it **auto-instruments**: the
+underlying **Amazon Bedrock** model calls (the `llm` spans, service
+`aws.bedrock-runtime`).
 
-This is the key insight: because there's no Strands `ddtrace` contrib patch, the
-SDK relies on the OTel bridge to relay Strands' own instrumentation. With the
-bridge on, App B reaches parity with App A — same spans, different transport
-(Datadog SDK vs raw OTLP exporter).
+It does **not** capture Strands' agent-orchestration spans (`invoke_agent`,
+event-loop cycles, tool execution). That's because `ddtrace` has no Strands
+`contrib` integration — Datadog's [official Strands support](https://docs.datadoghq.com/llm_observability/instrumentation/auto_instrumentation/)
+is delivered through Strands' **native OpenTelemetry** emission, i.e. the OTLP
+path used by **App A**.
 
 ## Contrast with App A
 
-- **App A**: Strands native OTel → **OTLP exporter** → Datadog OTLP intake.
-- **App B**: Strands native OTel → **ddtrace OTel bridge** → Datadog LLM Obs.
+| | App A — OTEL SDK | App B — DD SDK |
+|---|---|---|
+| Instrumentation | Strands native OpenTelemetry | `ddtrace` auto-instrumentation |
+| Transport | OTLP exporter → Datadog `/v1/traces` | Datadog SDK (agentless) |
+| Zero-decoration result | Full agent tree (`agent` + event-loop + `llm` + `tool`) | Bedrock `llm` spans only |
 
-Same source spans; the difference is who ships them.
+Takeaway: for a Strands agent, the **OTEL SDK path (App A)** is what surfaces the
+full agent trace in Agent Observability with zero decoration.
 
 ## Deploying to AgentCore Runtime (optional)
 
 `agent.py` defines an `@app.entrypoint` handler. On AgentCore Runtime, set
-`DISABLE_ADOT_OBSERVABILITY=true` and provide the `DD_*` env vars (including
-`DD_TRACE_OTEL_ENABLED=1`) as runtime configuration; launch with `ddtrace-run`.
+`DISABLE_ADOT_OBSERVABILITY=true` and provide the `DD_*` env vars as runtime
+configuration; launch with `ddtrace-run`.

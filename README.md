@@ -6,11 +6,18 @@ observability wiring differs. The goal is to *understand the mechanisms*.
 
 | App | Folder | How telemetry reaches Datadog |
 |-----|--------|-------------------------------|
-| **App A — OTLP native** | [`app-otlp/`](app-otlp/) | Agent emits OpenTelemetry GenAI spans and exports them **directly to Datadog's OTLP intake** (no Datadog Agent). This is the path AgentCore's built-in observability uses. |
-| **App B — Datadog SDK** | [`app-datadog-sdk/`](app-datadog-sdk/) | Agent is instrumented with the **Datadog LLM Observability SDK** (`ddtrace`), running agentless. |
+| **App A — OTEL SDK** | [`app-otlp/`](app-otlp/) | Agent emits OpenTelemetry GenAI spans (Strands native telemetry) and exports them **directly to Datadog's OTLP intake** (no Datadog Agent). This is the path AgentCore's built-in observability uses. |
+| **App B — DD SDK** | [`app-datadog-sdk/`](app-datadog-sdk/) | Agent is auto-instrumented with the **Datadog LLM Observability SDK** (`ddtrace`), running agentless. |
 
-Both surface in **Datadog LLM Observability** so you can compare the two lenses
-on the same trace.
+Both run the **identical agent** with **zero observability decorators** and
+surface in **Datadog Agent Observability** — so you can compare what each
+instrumentation path captures on its own.
+
+> **Key finding:** with zero decoration, **App A (OTEL SDK)** produces the full
+> agent trace (agent invocation + event-loop cycles + LLM calls + tool), while
+> **App B (DD SDK)** captures the auto-instrumented **Bedrock LLM calls** only.
+> `ddtrace` has no Strands `contrib` integration — Datadog's official Strands
+> support is delivered via Strands' native OpenTelemetry (the OTLP path, App A).
 
 ## The agent
 

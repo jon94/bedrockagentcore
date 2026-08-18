@@ -1,13 +1,12 @@
-"""App B — Bedrock AgentCore agent observed with the Datadog SDK (zero decoration).
+"""App B — Bedrock AgentCore agent observed with the Datadog SDK (zero decorators).
 
-Mechanism: the exact same Strands agent as App A, observed via the Datadog LLM
-Observability SDK (`ddtrace`) running agentless. There are NO manual decorators.
+The same Strands agent as App A, observed with Datadog's LLM Observability SDK
+(`ddtrace`) running agentless. There are NO observability decorators — only
+Strands' functional `@tool` (which defines the tool, same as App A).
 
-Datadog supports Strands Agents through Strands' native OpenTelemetry emission
-(ddtrace has no Strands contrib patch). To let the SDK capture those native
-Strands spans, we enable ddtrace's OpenTelemetry bridge (DD_TRACE_OTEL_ENABLED=1):
-ddtrace becomes the OTel tracer provider, so Strands' gen_ai spans flow through
-ddtrace into LLM Observability — with zero code annotation.
+What the SDK captures with zero decoration: ddtrace auto-instruments the
+underlying Amazon Bedrock calls, so the LLM spans appear in Agent Observability
+automatically.
 
 Run locally:
     python agent.py "What's the weather in Tokyo, and is it a good day to run?"
@@ -19,13 +18,6 @@ import sys
 from dotenv import load_dotenv
 
 load_dotenv()
-
-# Bridge OpenTelemetry into ddtrace so Strands' native gen_ai spans are captured
-# by the Datadog SDK. Set before importing ddtrace. Toggle to "0" to see what the
-# SDK captures WITHOUT the bridge (only the auto-instrumented Bedrock calls).
-os.environ.setdefault("DD_TRACE_OTEL_ENABLED", "1")
-# Make Strands emit OTel v1.37+ GenAI semantic conventions.
-os.environ.setdefault("OTEL_SEMCONV_STABILITY_OPT_IN", "gen_ai_latest_experimental")
 
 from ddtrace.llmobs import LLMObs  # noqa: E402
 
@@ -91,5 +83,5 @@ if __name__ == "__main__":
         answer = invoke(prompt)
         print(f"\n>>> Answer:\n{answer}\n")
         LLMObs.flush()
-        print("Telemetry flushed. Look in Datadog LLM Observability "
+        print("Telemetry flushed. Look in Datadog Agent Observability "
               f"(ml_app:{os.getenv('DD_LLMOBS_ML_APP', 'bedrock-agentcore-sdk')}). Allow 3-5 minutes.")

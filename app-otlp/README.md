@@ -1,9 +1,10 @@
-# App A — OTLP-native → Datadog
+# App A — OTEL SDK / OTLP-native → Datadog
 
 The agent emits **OpenTelemetry GenAI spans** (Strands' built-in telemetry) and
 exports them **directly to Datadog's OTLP intake**. No Datadog Agent, no Datadog
-SDK. This is the same OTLP mechanism AgentCore's built-in observability uses —
-here we just point it at Datadog instead of CloudWatch.
+SDK, and **no observability decorators** (only Strands' functional `@tool`). This
+is the same OTLP mechanism AgentCore's built-in observability uses — here we just
+point it at Datadog instead of CloudWatch.
 
 ```
 agent.py
