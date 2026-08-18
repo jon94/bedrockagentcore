@@ -1,0 +1,5 @@
+# App B — Datadog LLM Observability SDK
+strands-agents>=1.11.0     # same agent framework as App A
+ddtrace>=3.0.0             # Datadog SDK: LLM Observability + Bedrock integration
+bedrock-agentcore          # AgentCore Runtime entrypoint (for deploy)
+python-dotenv>=1.0.0       # load .env locally

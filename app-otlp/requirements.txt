@@ -1,0 +1,5 @@
+# App A — OTLP-native telemetry to Datadog
+strands-agents>=1.11.0                    # native OpenTelemetry GenAI spans
+opentelemetry-exporter-otlp-proto-http>=1.37.0   # OTLP HTTP/protobuf exporter
+bedrock-agentcore                         # AgentCore Runtime entrypoint (for deploy)
+python-dotenv>=1.0.0                      # load .env locally
