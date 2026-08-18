@@ -21,10 +21,10 @@ load_dotenv()
 DD_SITE = os.getenv("DD_SITE", "datadoghq.com")
 DD_API_KEY = os.getenv("DD_API_KEY", "")
 
-# US1 (datadoghq.com) -> https://trace.agent.datadoghq.com/api/v0.2/traces
+# US1 (datadoghq.com) -> https://trace.agent.datadoghq.com/v1/traces
 os.environ.setdefault(
     "OTEL_EXPORTER_OTLP_TRACES_ENDPOINT",
-    f"https://trace.agent.{DD_SITE}/api/v0.2/traces",
+    f"https://trace.agent.{DD_SITE}/v1/traces",
 )
 os.environ.setdefault("OTEL_EXPORTER_OTLP_TRACES_PROTOCOL", "http/protobuf")
 os.environ.setdefault(

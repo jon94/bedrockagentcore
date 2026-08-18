@@ -33,7 +33,7 @@ search `ml_app:bedrock-agentcore-otlp` (allow 3–5 minutes for traces to appear
 
 | Variable | Value | Purpose |
 |----------|-------|---------|
-| `OTEL_EXPORTER_OTLP_TRACES_ENDPOINT` | `https://trace.agent.datadoghq.com/api/v0.2/traces` | Datadog US1 OTLP intake |
+| `OTEL_EXPORTER_OTLP_TRACES_ENDPOINT` | `https://trace.agent.datadoghq.com/v1/traces` | Datadog US1 OTLP intake |
 | `OTEL_EXPORTER_OTLP_TRACES_PROTOCOL` | `http/protobuf` | required by the intake |
 | `OTEL_EXPORTER_OTLP_TRACES_HEADERS` | `dd-api-key=...,dd-otlp-source=llmobs` | auth + route to LLM Obs |
 | `OTEL_SEMCONV_STABILITY_OPT_IN` | `gen_ai_latest_experimental` | make Strands emit v1.37+ GenAI semconv |
