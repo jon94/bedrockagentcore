@@ -53,7 +53,7 @@ def get_weather(city: str) -> str:
 
 def build_agent() -> Agent:
     model = BedrockModel(
-        model_id=os.getenv("BEDROCK_MODEL_ID", "apac.anthropic.claude-sonnet-4-20250514-v1:0"),
+        model_id=os.getenv("BEDROCK_MODEL_ID", "global.anthropic.claude-sonnet-4-5-20250929-v1:0"),
         region_name=os.getenv("AWS_REGION", "ap-southeast-1"),
     )
     return Agent(model=model, tools=[get_weather], system_prompt=SYSTEM_PROMPT)

@@ -30,8 +30,8 @@ agent invocation                 ← root span
 
 1. **AWS access** — this repo assumes an SSO profile. Log in:
    ```bash
-   aws sso login --profile account-admin-369042512949
-   aws sts get-caller-identity --profile account-admin-369042512949   # sanity check
+   aws sso login --profile ese-sandbox
+   aws sts get-caller-identity --profile ese-sandbox   # sanity check
    ```
 2. **Enable Bedrock model access** for Claude Sonnet in **`ap-southeast-1`**
    (Bedrock console → Model access). This is per-region.
@@ -39,7 +39,7 @@ agent invocation                 ← root span
    inference profile; verify it exists in your account):
    ```bash
    aws bedrock list-foundation-models \
-     --profile account-admin-369042512949 --region ap-southeast-1 \
+     --profile ese-sandbox --region ap-southeast-1 \
      --by-provider anthropic \
      --query "modelSummaries[?contains(modelId,'sonnet')].modelId" --output text
    ```

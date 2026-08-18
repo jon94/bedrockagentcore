@@ -15,7 +15,7 @@ agent.py
 ## Run
 
 ```bash
-aws sso login --profile account-admin-369042512949   # if not already logged in
+aws sso login --profile ese-sandbox   # if not already logged in
 
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
